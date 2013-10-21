@@ -296,20 +296,25 @@
 		}
 		
 		function updateResult() {
-			var radio = document.querySelector('input[type="radio"][name="group_mode"]:checked');
-			localStorage.setItem('viewmode', radio.value);
-			if(parsedFiles.length<1)
-				document.getElementById('result').innerHTML = ''/*'Результат появится здесь'*/;
-			else if(radio && radio.value=='mode_comparison')
-				document.getElementById('result').innerHTML = evaluateResultForComparison();
-			else if(radio && radio.value=='mode_pad')
-				document.getElementById('result').innerHTML = evaluateResultForPad();
-			else if(radio && radio.value=='mode_timeline')
-				document.getElementById('result').innerHTML = evaluateResultForTimeline();
-			else
-				document.getElementById('result').innerHTML = '';
-			//document.getElementById('mode_specific').className = radio ? radio.value : '';
-			document.getElementById('select_result_button_div').style.display = radio && radio.value=='mode_pad' && parsedFiles.length>0 ? 'block' : 'none';
+			try {
+				var radio = document.querySelector('input[type="radio"][name="group_mode"]:checked');
+				localStorage.setItem('viewmode', radio.value);
+				if(parsedFiles.length<1)
+					document.getElementById('result').innerHTML = ''/*'Результат появится здесь'*/;
+				else if(radio && radio.value=='mode_comparison')
+					document.getElementById('result').innerHTML = evaluateResultForComparison();
+				else if(radio && radio.value=='mode_pad')
+					document.getElementById('result').innerHTML = evaluateResultForPad();
+				else if(radio && radio.value=='mode_timeline')
+					document.getElementById('result').innerHTML = evaluateResultForTimeline();
+				else
+					document.getElementById('result').innerHTML = '';
+				//document.getElementById('mode_specific').className = radio ? radio.value : '';
+				document.getElementById('select_result_button_div').style.display = radio && radio.value=='mode_pad' && parsedFiles.length>0 ? 'block' : 'none';
+			}
+			catch(error) {
+				document.getElementById('result').innerHTML = '<div style="color: #f00; font-size: 18px;">Error: '+escapeHtml(error.message)+'</div>';
+			}
 		}
 		
 		function selectResult() {
