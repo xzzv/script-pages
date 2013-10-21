@@ -266,7 +266,9 @@
 			var label_width = 270;
 			var label_indent = 30;
 			var max_time = 0;
-			for(var iFile = 0; iFile<parsedFiles.length; ++iFile)
+			resultHeader = '';
+			for(var iFile = 0; iFile<parsedFiles.length; ++iFile) {
+	            resultHeader += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', 0, 65+label_indent+iFile*(label_width+label_indent), label_width, 20, '', filenames[iFile]);
 				for(var iLine = 0; iLine<parsedFiles[iFile].lines.length; ++iLine) {
 					var parsedLine = parsedFiles[iFile].lines[iLine];
 	                max_time = Math.max(max_time, parsedLine.msecEnd);
@@ -275,6 +277,7 @@
 	                var pos_bottom = Math.floor(parsedLine.msecEnd*pixels_per_second/1000);
 	                result += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', pos_top+30, 65+label_indent+iFile*(label_width+label_indent), label_width, pos_bottom-pos_top-1, parsedLine.style, text);
 				}
+			}
 			var time_start = 0;
 			var time_step = 5;
 			var time_interval = 1;
@@ -289,7 +292,7 @@
 	            result += formatString('\r\n    <div class="cl_timeline" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px"></div>', pos_top+30, pos_left, 65-pos_left, pos_height);
 			    time_start += time_interval;
 			}
-			return '<div style="position: relative;">'+result+'</div>';
+			return '<div style="position: relative;">'+resultHeader+'</div><div style="position: relative;">'+result+'</div>';
 		}
 		
 		function updateResult() {
