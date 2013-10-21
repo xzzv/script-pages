@@ -341,17 +341,27 @@
 			evt.stopPropagation();
 			evt.preventDefault();
 			var readerOnLoad = function(file) {return function(e) {
-				var parsedFile = parseAssFile(e.target.result);
-				parsedFile.fileSize = file.size;
-				parsedFiles.push(parsedFile);
-				filenames.push(file.name);
-				updateResult();
+				try {
+					var parsedFile = parseAssFile(e.target.result);
+					parsedFile.fileSize = file.size;
+					parsedFiles.push(parsedFile);
+					filenames.push(file.name);
+					updateResult();
+				}
+				catch(error) {
+					showError(error.message);
+				}
 			}};
-			var files = evt.dataTransfer.files;
-			for(var iDroppedFile = 0; iDroppedFile<evt.dataTransfer.files.length; ++iDroppedFile) {
-				var reader = new FileReader();
-				reader.onload = readerOnLoad(files[iDroppedFile]);
-				reader.readAsText(files[iDroppedFile]);
+			try {
+				var files = evt.dataTransfer.files;
+				for(var iDroppedFile = 0; iDroppedFile<evt.dataTransfer.files.length; ++iDroppedFile) {
+					var reader = new FileReader();
+					reader.onload = readerOnLoad(files[iDroppedFile]);
+					reader.readAsText(files[iDroppedFile]);
+				}
+			}
+			catch(error) {
+				showError(error.message);
 			}
 		}
 		
