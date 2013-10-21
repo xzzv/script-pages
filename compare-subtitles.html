@@ -21,6 +21,7 @@
 		div.cl_time{color:#999999;text-align:right;border-style:none;}
 	</style>
 	<script>
+		var numDroppedFiles = 0;
 		var parsedFiles = [];
 		var filenames = [];
 		var delimiter0 = ''; // '&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -150,8 +151,7 @@
 					if(parsedLine.msecStart>=interval.msecEnd)
 						break;
 					var parsedLineMsecCenter = (parsedLine.msecStart+parsedLine.msecEnd)/2;
-					if(parsedLineMsecCenter>interval.msecEnd)
-					{
+					if(parsedLineMsecCenter>interval.msecEnd) {
 						var numNonEmptyCells = lines.filter(function(elem) {return elem.length>0;}).length;
 						if(numNonEmptyCells>=thresholdNonEmptyCells) {
 							var nextNonEmptyCells = {};
@@ -346,7 +346,8 @@
 					parsedFile.fileSize = file.size;
 					parsedFiles.push(parsedFile);
 					filenames.push(file.name);
-					updateResult();
+					if(parsedFiles.length==numDroppedFiles)
+						updateResult();
 				}
 				catch(error) {
 					showError(error.message);
@@ -356,6 +357,7 @@
 				var files = evt.dataTransfer.files;
 				for(var iDroppedFile = 0; iDroppedFile<evt.dataTransfer.files.length; ++iDroppedFile) {
 					var reader = new FileReader();
+					++numDroppedFiles;
 					reader.onload = readerOnLoad(files[iDroppedFile]);
 					reader.readAsText(files[iDroppedFile]);
 				}
