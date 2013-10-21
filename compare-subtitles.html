@@ -266,9 +266,8 @@
 			var label_width = 270;
 			var label_indent = 30;
 			var max_time = 0;
-			resultHeader = '';
 			for(var iFile = 0; iFile<parsedFiles.length; ++iFile) {
-	            resultHeader += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px;border:0px;font-weight:bold;" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', 0, 65+label_indent+iFile*(label_width+label_indent), label_width, 60, '', escapeHtml(filenames[iFile]).replace(/(_|\[)/g, '<wbr>$1'));
+	            result += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px;border:0px;font-weight:bold;" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', 0, 65+label_indent+iFile*(label_width+label_indent), label_width, 60, '', escapeHtml(filenames[iFile]).replace(/(_|\[)/g, '<wbr>$1'));
 				for(var iLine = 0; iLine<parsedFiles[iFile].lines.length; ++iLine) {
 					var parsedLine = parsedFiles[iFile].lines[iLine];
 	                max_time = Math.max(max_time, parsedLine.msecEnd);
@@ -292,7 +291,7 @@
 	            result += formatString('\r\n    <div class="cl_timeline" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px"></div>', pos_top+80, pos_left, 65-pos_left, pos_height);
 			    time_start += time_interval;
 			}
-			return '<div style="position: relative;">'+resultHeader+'</div><div style="position: relative;">'+result+'</div>';
+			return '<div style="position: relative;">'+result+'</div>';
 		}
 		
 		function showError(message) {
