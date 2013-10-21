@@ -268,14 +268,14 @@
 			var max_time = 0;
 			resultHeader = '';
 			for(var iFile = 0; iFile<parsedFiles.length; ++iFile) {
-	            resultHeader += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', 0, 65+label_indent+iFile*(label_width+label_indent), label_width, 20, '', filenames[iFile]);
+	            resultHeader += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px;border:0px;font-weight:bold;" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', 0, 65+label_indent+iFile*(label_width+label_indent), label_width, 60, '', filenames[iFile]);
 				for(var iLine = 0; iLine<parsedFiles[iFile].lines.length; ++iLine) {
 					var parsedLine = parsedFiles[iFile].lines[iLine];
 	                max_time = Math.max(max_time, parsedLine.msecEnd);
 	                var text = parsedLine.text.replace(/\{[^{}]*\p[1-9][^{}]*\}[^{}]*(\{[^{}]*\p0[^{}]*\}|$)/g, '').replace(/\{[^{}]*\}/g, '');
 	                var pos_top = Math.floor(parsedLine.msecStart*pixels_per_second/1000);
 	                var pos_bottom = Math.floor(parsedLine.msecEnd*pixels_per_second/1000);
-	                result += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', pos_top+30, 65+label_indent+iFile*(label_width+label_indent), label_width, pos_bottom-pos_top-1, parsedLine.style, text);
+	                result += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', pos_top+80, 65+label_indent+iFile*(label_width+label_indent), label_width, pos_bottom-pos_top-1, parsedLine.style, text);
 				}
 			}
 			var time_start = 0;
@@ -286,10 +286,10 @@
 			    var pos_height = Math.floor((time_start+time_interval)*pixels_per_second)-pos_top-1;
 			    var pos_left = 63;
 			    if(time_start%time_step==0) {
-	                result += formatString('\r\n    <div class="cl_time" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px;line-height:{4}px">{5}</div>', pos_top+30-pos_height/2, 12, 30, pos_height, pos_height, getMinutesAndSecondsStringFromMsec(time_start*1000, false));
+	                result += formatString('\r\n    <div class="cl_time" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px;line-height:{4}px">{5}</div>', pos_top+80-pos_height/2, 12, 30, pos_height, pos_height, getMinutesAndSecondsStringFromMsec(time_start*1000, false));
 			        pos_left = 58;
 			    }
-	            result += formatString('\r\n    <div class="cl_timeline" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px"></div>', pos_top+30, pos_left, 65-pos_left, pos_height);
+	            result += formatString('\r\n    <div class="cl_timeline" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px"></div>', pos_top+80, pos_left, 65-pos_left, pos_height);
 			    time_start += time_interval;
 			}
 			return '<div style="position: relative;">'+resultHeader+'</div><div style="position: relative;">'+result+'</div>';
