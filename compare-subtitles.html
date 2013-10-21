@@ -295,6 +295,10 @@
 			return '<div style="position: relative;">'+resultHeader+'</div><div style="position: relative;">'+result+'</div>';
 		}
 		
+		function showError(message) {
+			document.getElementById('result').innerHTML = '<div style="color: #f00; font-size: 18px;">Error: '+escapeHtml(message)+'</div>';
+		}
+		
 		function updateResult() {
 			try {
 				var radio = document.querySelector('input[type="radio"][name="group_mode"]:checked');
@@ -313,7 +317,7 @@
 				document.getElementById('select_result_button_div').style.display = radio && radio.value=='mode_pad' && parsedFiles.length>0 ? 'block' : 'none';
 			}
 			catch(error) {
-				document.getElementById('result').innerHTML = '<div style="color: #f00; font-size: 18px;">Error: '+escapeHtml(error.message)+'</div>';
+				showError(error.message);
 			}
 		}
 		
