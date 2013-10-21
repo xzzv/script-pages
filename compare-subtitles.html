@@ -148,7 +148,7 @@
 					var fileIndex = parsedLine.fileIndex;
 					if(interval==null)
 						interval = {msecStart: parsedLine.msecStart, msecEnd: parsedLine.msecEnd};
-					if(parsedLine.msecStart>=interval.msecEnd)
+					else if(parsedLine.msecStart>=interval.msecEnd)
 						break;
 					var parsedLineMsecCenter = (parsedLine.msecStart+parsedLine.msecEnd)/2;
 					if(parsedLineMsecCenter>interval.msecEnd) {
