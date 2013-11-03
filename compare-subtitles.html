@@ -3,15 +3,19 @@
 <head>
 	<title></title>
 	<style>
-		body {font-family: sans-serif; color: #444; font-size: 18px;}
-		div.drop_zone, div#result {width: 80%; line-height: 75px; text-align: center; margin: 25px auto;}
-		div.drop_zone {border: 3px dashed #ccc;}
-		div#result {border: 0px;}
-		div#result td, div#result div.result_for_pad {font-size: 15px; line-height: normal; vertical-align: top; text-align: left; padding: 7px 2px;}
+		body {font-family: sans-serif; color: #444; font-size: 15px;}
+		.mode_selection {font-size: 18px;}
+		.drop_zone {font-size: 18px; text-align: center; line-height: 75px; border: 3px dashed #ccc;}
+		.drop_zone, div#result {width: 80%; margin: 25px auto;}
+		#select_result_button_div {font-size: 18px; text-align: center; width: 100%; margin: 25px auto;}
+		#select_result_button {text-decoration: none; border-bottom: 1px dashed;}
+		.result_for_pad {vertical-align: top; padding: 7px 5px;}
+		.comparison_table {width:100%; table-layout:fixed; word-wrap: break-word;}
+		.comparison_table td {vertical-align: top; padding: 7px 5px;}
 
+		.incompatible_browser_body>* {display: none;}
 		.incompatible_browser_body>.incompatible_browser {display: block; line-height: 75px; text-align: center; font-size: 25px;}
 		.incompatible_browser {display: none;}
-		.incompatible_browser_body>* {display: none;}
 		
   		div.cl_sub, div.cl_sub *, div.cl_timeline, div.cl_time{font-size:14px;font-family:arial,helvetica,verdana,tahoma,sans-serif;color:#222222;border-color:#CCCCCC;border-width:1px;padding-top:1px;padding-left:2px;padding-right:2px;position:absolute;line-height:normal;}
 		div.cl_sub{border-style:solid;position:absolute;padding:0px 0px;border-radius:4px;}
@@ -24,15 +28,6 @@
 		var numDroppedFiles = 0;
 		var parsedFiles = [];
 		var filenames = [];
-		var delimiter0 = ''; // '&nbsp;&nbsp;&nbsp;&nbsp;'
-		var delimiter1 = '&nbsp;';
-		var delimiter2 = '&nbsp;';
-		var delimiter3 = '&nbsp;';
-		var delimiter4 = '&nbsp;'; // '→&nbsp;'
-		var delimiter5 = '<br/>';
-		var delimiter6 = '&nbsp;→&nbsp;';
-		var delimiter7 = '&nbsp;//&nbsp;';
-		var delimiter8 = '&nbsp;&nbsp;&nbsp;&nbsp;';
 
 		function getMsecFromTimeString(str) {
 			var match = str.match(/^(\d+):(\d+):(\d+(\.\d+)?)$/i);
@@ -222,26 +217,19 @@
 			if(parsedFiles.length<1)
 				return '';
 			var result = '';
-			
-			result += '\r\n    <colgroup>\r\n    <col>';
-			for(var iFile = 0; iFile<parsedFiles.length; ++iFile)
-				result += '\r\n    <col>\r\n    <col style="width: '+Math.floor(90/parsedFiles.length)+'%">';
-			result += '\r\n    <col>\r\n    </colgroup>';
-
-			result += '\r\n    <tr><td></td>';
+			var nameColumnWidthInPercents = Math.min(10, 100/(parsedFiles.length+1));
+			var textColumnWidthInPercents = Math.floor(100*(100-nameColumnWidthInPercents)/parsedFiles.length)/100;
+			result += '\r\n    <tr><td style="width: 4em;"></td><td style="width: '+nameColumnWidthInPercents+'%;"></td>';
 			for(var iFile = 0; iFile<parsedFiles.length; ++iFile) 
-				result += '<td></td><td><b>'+escapeHtml(filenames[iFile]).replace(/(_|\[)/g, '<wbr>$1')+'</b>'+/*'<br/><small>('+parsedFiles[iFile].fileSize+' байт, '+parsedFiles[iFile].lines.length+' строк)<br/>&nbsp;</small>'+*/'</td>';
-			result += '<td>'+delimiter5+'</td></tr>';
-
+				result += '<td style="width: '+textColumnWidthInPercents+'%;"><b>'+escapeHtml(filenames[iFile]).replace(/(_|\[)/g, '<wbr>$1')+'</b>'+/*'<br/><small>('+parsedFiles[iFile].fileSize+' байт, '+parsedFiles[iFile].lines.length+' строк)<br/>&nbsp;</small>'+*/'</td>';
+			result += '</tr>';
 			for(var iRow = 0; iRow<rowStrings.length; ++iRow) {
-				result += '\r\n    <tr>'+'<td>'+delimiter0+rowStrings[iRow][0]+delimiter1+'</td>'+'<td><b>'+rowStrings[iRow][1]+':</b>'+delimiter2+'</td>';
-				for(var iFile = 0; iFile<parsedFiles.length; ++iFile) {
-					result += iFile ? ('<td>'+delimiter4+'</td>') : '';
-					result += '<td>'+rowStrings[iRow][iFile+2]+delimiter3+'</td>';
-				}
-				result += '<td>'+delimiter5+'</td></tr>';
+				result += '\r\n    <tr><td style="width: 4em;">'+rowStrings[iRow][0]+'</td><td style="width: '+nameColumnWidthInPercents+'%;"><b>'+rowStrings[iRow][1]+':</b></td>';
+				for(var iFile = 0; iFile<parsedFiles.length; ++iFile)
+					result += '<td style="width: '+textColumnWidthInPercents+'%;">'+rowStrings[iRow][iFile+2]+'</td>';
+				result += '</tr>';
 			}
-			return "\r\n<table>"+result+"\r\n</table>\r\n";
+			return '\r\n<table class="comparison_table">'+result+'\r\n</table>\r\n';
 		}
 		
 		function evaluateResultForPad() {
@@ -250,9 +238,9 @@
 				return '';
 			var result = '';
 			for(var iRow = 0; iRow<rowStrings.length; ++iRow) {
-				result += '\r\n    '+delimiter8+rowStrings[iRow][0]+delimiter1+'<b>'+rowStrings[iRow][1]+':</b>'+delimiter2;
+				result += '\r\n    &nbsp;&nbsp;&nbsp;&nbsp;'+rowStrings[iRow][0]+'&nbsp;<b>'+rowStrings[iRow][1]+':</b>&nbsp;';
 				for(var iFile = 0; iFile<parsedFiles.length; ++iFile)
-					result += rowStrings[iRow][iFile+2]+(iFile==0?delimiter6:iFile<parsedFiles.length-1?delimiter7:'');
+					result += rowStrings[iRow][iFile+2]+(iFile==0?'&nbsp;→&nbsp;':iFile<parsedFiles.length-1?'&nbsp;//&nbsp;':'');
 				result += '<br/>';
 			}
 			return '<div class="result_for_pad">'+result+'</div>';
@@ -388,9 +376,9 @@
 <body class="incompatible_browser_body">
 <div class="incompatible_browser">...</div>
 <div class="drop_zone" id="drop_zone">Перетащите файлы субтитров сюда</div>
-<div style="overflow:hidden; XXX-border: 1px solid green;">
-    <div style="float: left; position: relative; left: 50%; XXX-border: 1px solid red;">
-        <div style="float: left; position: relative; right: 50%; XXX-border: 1px solid blue;">
+<div class="mode_selection" style="overflow:hidden;">
+    <div style="float: left; position: relative; left: 50%;">
+        <div style="float: left; position: relative; right: 50%;">
         	<form name="options_form" method="get" action="" onsubmit="return false;">
 				<label><input type="radio" name="group_mode" value="mode_comparison" checked/> Сравнение</label><br/>
 				<label><input type="radio" name="group_mode" value="mode_pad"/> Перенос в пад</label><br/>
@@ -400,7 +388,7 @@
     </div>
 </div>
 <div id="mode_specific">
-	<div id="select_result_button_div" style="display: none; text-align: center; width: 100%; margin: 25px auto;"><a href="javascript:void(0)" style="XXX-margin-left: 10px; text-decoration: none; border-bottom: 1px dashed" id="select_result_button">Выделить всё</a></div>
+	<div id="select_result_button_div" style="display: none;"><a href="javascript:void(0)" id="select_result_button">Выделить всё</a></div>
 </div>
 <div id="result"></div>
 </body>
