@@ -12,6 +12,10 @@
 		.result_for_pad {vertical-align: top; padding: 7px 5px;}
 		.comparison_table {width:100%; table-layout:fixed; word-wrap: break-word;}
 		.comparison_table td {vertical-align: top; padding: 7px 5px;}
+		
+		.positioned_text {color:peru;}
+		.ass_tags {color:#c3c3c3;}
+		.non_bottom_center_text {color:royalblue;}
 
 		.incompatible_browser_body>* {display: none;}
 		.incompatible_browser_body>.incompatible_browser {display: block; line-height: 75px; text-align: center; font-size: 25px;}
@@ -52,6 +56,14 @@
 		
 		function removeAssPositionedText(str) {
 			return str.replace(/\{[^{}]*\\(pos|move|org|fr|k|K).*$/g, '');
+		}
+
+		function highlightAssTags(str) {
+			return str.replace(/(\{[^{}]*\}|\\N)/g, '<span class="ass_tags">$1</span>');
+		}
+		
+		function highlightPositionedText(str) {
+			return str.replace(/(\{[^{}]*\\(pos|move|org|fr|k|K)[^{}]*\})(.*)$/g, '$1<span class="positioned_text">$3</span>');
 		}
 		
 		function getLineAlignment(line) {
@@ -222,7 +234,10 @@
 					for(var iiLine = 0; iiLine<cell.length; ++iiLine) {
 						var iLine = cell[iiLine];
 						var parsedLine = parsedFiles[iFile].lines[iLine];
-						lines[iFile].push(removeAssDrawing(parsedLine.text));
+						var text = highlightAssTags(highlightPositionedText(removeAssDrawing(parsedLine.text)));
+						if(parsedLine.alignment!=2)
+							text = '<span class="non_bottom_center_text">'+text+'</span>';
+						lines[iFile].push(text);
 						var style = parsedLine.style.replace(/ /g, '&nbsp;');
 						if(names[iFile].indexOf(style)==-1)
 							names[iFile].push(style);
