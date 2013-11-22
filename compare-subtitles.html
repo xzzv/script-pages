@@ -7,6 +7,7 @@
 		.mode_selection {font-size: 18px;}
 		.drop_zone {font-size: 18px; text-align: center; line-height: 75px; border: 3px dashed #ccc;}
 		.drop_zone, div#result {width: 80%; margin: 25px auto;}
+		#show_tags_checkbox_div {margin: 12px auto;}
 		#select_result_button_div {font-size: 18px; text-align: center; width: 100%; margin: 25px auto;}
 		#select_result_button {text-decoration: none; border-bottom: 1px dashed;}
 		.result_for_pad {vertical-align: top; padding: 7px 5px;}
@@ -32,6 +33,7 @@
 		var numDroppedFiles = 0;
 		var parsedFiles = [];
 		var filenames = [];
+		var optShowTags = false;
 
 		function getMsecFromTimeString(str) {
 			var match = str.match(/^(\d+):(\d+):(\d+(\.\d+)?)$/i);
@@ -58,11 +60,15 @@
 			return str.replace(/\{[^{}]*\\(pos|move|org|fr|k|K).*$/g, '');
 		}
 
-		function highlightAssTags(str) {
+		function removeAssTags(str) {
+			return str.replace(/(\{[^{}]*\\[^{}]*\})/g, '');
+		}
+		
+		function highlightAssTagsAndComments(str) {
 			return str.replace(/(\{[^{}]*\}|\\N)/g, '<span class="ass_tags">$1</span>');
 		}
 		
-		function highlightPositionedText(str) {
+		function highlightAssPositionedText(str) {
 			return str.replace(/(\{[^{}]*\\(pos|move|org|fr|k|K)[^{}]*\})(.*)$/g, '$1<span class="positioned_text">$3</span>');
 		}
 		
@@ -234,7 +240,10 @@
 					for(var iiLine = 0; iiLine<cell.length; ++iiLine) {
 						var iLine = cell[iiLine];
 						var parsedLine = parsedFiles[iFile].lines[iLine];
-						var text = highlightAssTags(highlightPositionedText(removeAssDrawing(parsedLine.text)));
+						var text = highlightAssPositionedText(removeAssDrawing(parsedLine.text));
+						if(!optShowTags)
+							text = removeAssTags(text);
+						text = highlightAssTagsAndComments(text);
 						if(parsedLine.alignment!=2)
 							text = '<span class="non_bottom_center_text">'+text+'</span>';
 						lines[iFile].push(text);
@@ -353,7 +362,12 @@
 		function updateResult() {
 			try {
 				var radio = document.querySelector('input[type="radio"][name="group_mode"]:checked');
+				optShowTags = document.getElementById('show_tags_checkbox').checked;
 				localStorage.setItem('viewmode', radio.value);
+				localStorage.setItem('optShowTags', optShowTags);
+				//document.getElementById('mode_specific').className = radio ? radio.value : '';
+				document.getElementById('show_tags_checkbox_div').style.display = radio && (radio.value=='mode_pad' || radio.value=='mode_comparison') ? 'block' : 'none';
+				document.getElementById('select_result_button_div').style.display = radio && radio.value=='mode_pad' && parsedFiles.length>0 ? 'block' : 'none';
 				if(parsedFiles.length<1)
 					document.getElementById('result').innerHTML = ''/*'Результат появится здесь'*/;
 				else if(radio && radio.value=='mode_comparison')
@@ -364,8 +378,6 @@
 					document.getElementById('result').innerHTML = evaluateResultForTimeline();
 				else
 					document.getElementById('result').innerHTML = '';
-				//document.getElementById('mode_specific').className = radio ? radio.value : '';
-				document.getElementById('select_result_button_div').style.display = radio && radio.value=='mode_pad' && parsedFiles.length>0 ? 'block' : 'none';
 			}
 			catch(error) {
 				showError(error.message);
@@ -428,6 +440,9 @@
 				radioToSelect.checked = true;
 			for(var iRadio = 0; iRadio<radios.length; ++iRadio)
 				radios[iRadio].addEventListener('click', updateResult, false);
+			var checkboxShowTags = document.getElementById('show_tags_checkbox');
+			checkboxShowTags.addEventListener('click', updateResult, false);
+			checkboxShowTags.checked = localStorage.getItem('optShowTags')=='true';
 			updateResult();
 			document.body.classList.remove('incompatible_browser_body');
 		}
@@ -448,11 +463,16 @@
 				<label><input type="radio" name="group_mode" value="mode_pad"/> Перенос в пад</label><br/>
 				<label><input type="radio" name="group_mode" value="mode_timeline"/> Таймлайн</label><br/>
 			</form>
+			<div id="mode_specific">
+				<div id="show_tags_checkbox_div" style="display: none;">
+					<label><input type="checkbox" id="show_tags_checkbox"/>Показывать теги</input></label>
+				</div>
+				<div id="select_result_button_div" style="display: none;">
+					<a href="javascript:void(0)" id="select_result_button">Выделить всё</a>
+				</div>
+			</div>
         </div>
     </div>
-</div>
-<div id="mode_specific">
-	<div id="select_result_button_div" style="display: none;"><a href="javascript:void(0)" id="select_result_button">Выделить всё</a></div>
 </div>
 <div id="result"></div>
 </body>
