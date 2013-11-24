@@ -295,7 +295,7 @@
 				return '';
 			var result = '';
 			for(var iRow = 0; iRow<rowStrings.length; ++iRow) {
-				result += '\r\n    &nbsp;&nbsp;&nbsp;&nbsp;'+rowStrings[iRow][0]+'&nbsp;<b>'+rowStrings[iRow][1]+':</b>&nbsp;';
+				result += '\r\n&nbsp;&nbsp;&nbsp;&nbsp;'+rowStrings[iRow][0]+'&nbsp;<b>'+rowStrings[iRow][1]+':</b>&nbsp;';
 				for(var iFile = 0; iFile<parsedFiles.length; ++iFile)
 					result += rowStrings[iRow][iFile+2]+(iFile==0?'&nbsp;→&nbsp;':iFile<parsedFiles.length-1?'&nbsp;//&nbsp;':'');
 				result += '<br/>';
