@@ -35,9 +35,23 @@
 		var filenames = [];
 		var optShowTags = false;
 
-		function getMsecFromTimeString(str) {
+		function getMsecFromAssTimeString(str) {
 			var match = str.match(/^(\d+):(\d+):(\d+(\.\d+)?)$/i);
 			return match ? Math.round((parseFloat(match[1])*3600+parseFloat(match[2])*60+parseFloat(match[3]))*1000) : null;
+		}
+
+		function getMsecFromSrtTimeString(str) {
+			var match = str.match(/^(\d+:)?(\d+:)?(\d+)(,\d+)?/);
+			if(!match)
+				return null;
+			var msec = parseFloat(match[3])*1000;
+			if(match[4])
+				msec += parseFloat('0.'+match[4].slice(0, -1))*1000;
+			if(match[2])
+				msec += parseFloat(match[2].slice(0, -1))*60*1000;
+			if(match[1])
+				msec += parseFloat(match[1].slice(0, -1))*3600*1000;
+			return msec;
 		}
 
 		function getMinutesAndSecondsStringFromMsec(msec, padMinutesWithZeroes) {
@@ -113,10 +127,10 @@
 			var parsedFile = {lines: [], styles: {}};
 			var format = {};
 			for(var i=0; i<lines.length; ++i) {
-				matchFormat = lines[i].match(/^Format: (.*)$/i);
+				var matchFormat = lines[i].match(/^Format: (.*)$/i);
 				if(matchFormat)
 					format = matchFormat[1].split(',').map(function(field) {return field.trim();});
-				matchStyle = lines[i].match(/^Style: (.*)$/i);
+				var matchStyle = lines[i].match(/^Style: (.*)$/i);
 				if(matchStyle) {
 					var style = {};
 					matchStyle[1].split(',').forEach(function(value, index) {style[format[index]] = value;});
@@ -125,9 +139,28 @@
 				}
 				var match = lines[i].match(/^Dialogue: ?\d+,(\d+:\d+:\d+\.\d+),(\d+:\d+:\d+\.\d+),([^,]*),[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,(.*)$/i);
 				if(match) {
-					var line = {source: str, timeStart: match[1], timeEnd: match[2], style: match[3], text: match[4], msecStart: getMsecFromTimeString(match[1]), msecEnd: getMsecFromTimeString(match[2]), styleFields: parsedFile.styles[match[3]]};
+					var line = {source: str, timeStart: match[1], timeEnd: match[2], style: match[3], text: match[4], msecStart: getMsecFromAssTimeString(match[1]), msecEnd: getMsecFromAssTimeString(match[2]), styleFields: parsedFile.styles[match[3]]};
 					line.alignment = getLineAlignment(line);
 					parsedFile.lines.push(line);
+				}
+			}
+			return parsedFile;
+		}
+
+		function parseSrtFile(str) {
+			var lineGroups = str.replace(/\r/g, '').split('\n').map(function(x) {return x.trim()}).join('\n').split(/\n\n+/).map(function(x) {return x.trim().split('\n')});
+			var parsedFile = {lines: []};
+			for(var i=0; i<lineGroups.length; ++i) {
+				var lineGroup = lineGroups[i];
+				if(lineGroup.length>=2) {
+					var matchNumber = lineGroup[0].match(/^\d+$/);
+					var matchTime = lineGroup[1].match(/^(\d+:\d+:\d+,\d+) +--> +(\d+:\d+:\d+,\d+)/);
+					if(matchNumber && matchTime) {
+						var text = lineGroup.slice(2).join('\\N');
+						var line = {source: lineGroup.join('\n'), timeStart: matchTime[1], timeEnd: matchTime[2], style: '', text: text, msecStart: getMsecFromSrtTimeString(matchTime[1]), msecEnd: getMsecFromSrtTimeString(matchTime[2]), styleFields: null};
+						line.alignment = 2;
+						parsedFile.lines.push(line);
+					}
 				}
 			}
 			return parsedFile;
@@ -405,7 +438,7 @@
 			evt.preventDefault();
 			var readerOnLoad = function(file) {return function(e) {
 				try {
-					var parsedFile = parseAssFile(e.target.result);
+					var parsedFile = file.name.slice(-4).toLowerCase()=='.srt' ? parseSrtFile(e.target.result) : parseAssFile(e.target.result);
 					parsedFile.fileSize = file.size;
 					parsedFiles.push(parsedFile);
 					filenames.push(file.name);
