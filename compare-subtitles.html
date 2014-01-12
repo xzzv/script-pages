@@ -32,8 +32,9 @@
 	<script>
 		var numDroppedFiles = 0;
 		var parsedFiles = [];
-		var filenames = [];
 		var optShowTags = false;
+		var debugPreserveFilesOnRefresh = false;
+		var debugPreservedFiles = [];
 
 		function getMsecFromAssTimeString(str) {
 			var match = str.match(/^(\d+):(\d+):(\d+(\.\d+)?)$/i);
@@ -311,7 +312,7 @@
 			var textColumnWidthInPercents = Math.floor(100*(100-nameColumnWidthInPercents)/parsedFiles.length)/100;
 			result += '\r\n    <tr><td style="width: 4em;"></td><td style="width: '+nameColumnWidthInPercents+'%;"></td>';
 			for(var iFile = 0; iFile<parsedFiles.length; ++iFile) 
-				result += '<td style="width: '+textColumnWidthInPercents+'%;"><b>'+escapeHtml(filenames[iFile]).replace(/(_|\[)/g, '<wbr>$1')+'</b>'+/*'<br/><small>('+parsedFiles[iFile].fileSize+' байт, '+parsedFiles[iFile].lines.length+' строк)<br/>&nbsp;</small>'+*/'</td>';
+				result += '<td style="width: '+textColumnWidthInPercents+'%;"><b>'+escapeHtml(parsedFiles[iFile].filename).replace(/(_|\[)/g, '<wbr>$1')+'</b>'+/*'<br/><small>('+parsedFiles[iFile].fileSize+' байт, '+parsedFiles[iFile].lines.length+' строк)<br/>&nbsp;</small>'+*/'</td>';
 			result += '</tr>';
 			for(var iRow = 0; iRow<rowStrings.length; ++iRow) {
 				result += '\r\n    <tr><td style="width: 4em;">'+rowStrings[iRow][0]+'</td><td style="width: '+nameColumnWidthInPercents+'%;"><b>'+rowStrings[iRow][1]+':</b></td>';
@@ -345,7 +346,7 @@
 			var label_indent = 30;
 			var max_time = 0;
 			for(var iFile = 0; iFile<parsedFiles.length; ++iFile) {
-	            result += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px;border:0px;font-weight:bold;" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', 0, 65+label_indent+iFile*(label_width+label_indent), label_width, 60, '', escapeHtml(filenames[iFile]).replace(/(_|\[)/g, '<wbr>$1'));
+	            result += formatString('\r\n    <div class="cl_sub" style="top:{0}px;left:{1}px;width:{2}px;height:{3}px;border:0px;font-weight:bold;" title="{4}"><div class="cl_sub_inner"><div class="cl_sub_inner2">{5}</div></div></div>', 0, 65+label_indent+iFile*(label_width+label_indent), label_width, 60, '', escapeHtml(parsedFiles[iFile].filename).replace(/(_|\[)/g, '<wbr>$1'));
 				var lines =  parsedFiles[iFile].lines.slice(0);
 				lines.sort(function(line1, line2) {
 					return line1.msecStart<line2.msecStart?-1:line1.msecStart>line2.msecStart?1:line1.msecEnd<line2.msecEnd?-1:line1.msecEnd>line2.msecEnd?1:line1.alignment<line2.alignment?-1:line1.alignment>line2.alignment?1:0;
@@ -439,11 +440,16 @@
 			var readerOnLoad = function(file) {return function(e) {
 				try {
 					var parsedFile = file.name.slice(-4).toLowerCase()=='.srt' ? parseSrtFile(e.target.result) : parseAssFile(e.target.result);
+					parsedFile.filename = file.name;
 					parsedFile.fileSize = file.size;
 					parsedFiles.push(parsedFile);
-					filenames.push(file.name);
-					if(parsedFiles.length==numDroppedFiles)
+					if(debugPreserveFilesOnRefresh)
+						debugPreservedFiles.push({text: e.target.result, filename: parsedFile.filename, fileSize: parsedFile.fileSize});
+					if(parsedFiles.length==numDroppedFiles) {
+						if(debugPreserveFilesOnRefresh)
+							localStorage.setItem('debugPreservedFiles', JSON.stringify(debugPreservedFiles));
 						updateResult();
+					}
 				}
 				catch(error) {
 					showError(error.message);
@@ -476,6 +482,16 @@
 			var checkboxShowTags = document.getElementById('show_tags_checkbox');
 			checkboxShowTags.addEventListener('click', updateResult, false);
 			checkboxShowTags.checked = localStorage.getItem('optShowTags')=='true';
+			if(debugPreserveFilesOnRefresh) {
+				debugPreservedFiles = JSON.parse(localStorage.getItem('debugPreservedFiles')||'[]');
+				for(var iFile = 0; iFile<debugPreservedFiles.length; ++iFile) {
+					++numDroppedFiles;
+					var parsedFile = debugPreservedFiles[iFile].filename.slice(-4).toLowerCase()=='.srt' ? parseSrtFile(debugPreservedFiles[iFile].text) : parseAssFile(debugPreservedFiles[iFile].text);
+					parsedFile.filename = debugPreservedFiles[iFile].filename;
+					parsedFile.fileSize = debugPreservedFiles[iFile].fileSize;
+					parsedFiles.push(parsedFile);
+				}
+			}
 			updateResult();
 			document.body.classList.remove('incompatible_browser_body');
 		}
