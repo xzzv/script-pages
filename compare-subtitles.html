@@ -47,7 +47,7 @@
 				return null;
 			var msec = parseFloat(match[3])*1000;
 			if(match[4])
-				msec += parseFloat('0.'+match[4].slice(0, -1))*1000;
+				msec += parseFloat('0.'+match[4].slice(1))*1000;
 			if(match[2])
 				msec += parseFloat(match[2].slice(0, -1))*60*1000;
 			if(match[1])
