@@ -11,6 +11,7 @@
         #show_accurate_timing_checkbox_div {margin: 12px auto;}
         #select_result_button_div {font-size: 18px; text-align: center; width: 100%; margin: 25px auto;}
         #select_result_button {text-decoration: none; border-bottom: 1px dashed;}
+        #show_tags_checkbox_div.zero_height, #show_accurate_timing_checkbox_div.zero_height, #select_result_button_div.zero_height {visibility: hidden; height: 0px; margin: 0px;}
         .result_for_pad {vertical-align: top; padding: 7px 5px;}
         .comparison_table {width:100%; table-layout:fixed; word-wrap: break-word;}
         .comparison_table td {vertical-align: top; padding: 7px 5px;}
@@ -424,9 +425,9 @@
                 localStorage.setItem('optShowTags', optShowTags);
                 localStorage.setItem('optShowAccurateTiming', optShowAccurateTiming);
                 //document.getElementById('mode_specific').className = radio ? radio.value : '';
-                document.getElementById('show_tags_checkbox_div').style.display = radio && (radio.value=='mode_pad' || radio.value=='mode_comparison') ? 'block' : 'none';
-                document.getElementById('show_accurate_timing_checkbox_div').style.display = radio && radio.value=='mode_pad' ? 'block' : 'none';
-                document.getElementById('select_result_button_div').style.display = radio && radio.value=='mode_pad' && parsedFiles.length>0 ? 'block' : 'none';
+                document.getElementById('show_tags_checkbox_div').className = radio && (radio.value=='mode_pad' || radio.value=='mode_comparison') ? '' : 'zero_height';
+                document.getElementById('show_accurate_timing_checkbox_div').className = radio && radio.value=='mode_pad' ? '' : 'zero_height';
+                document.getElementById('select_result_button_div').className = radio && radio.value=='mode_pad' && parsedFiles.length>0 ? '' : 'zero_height';
                 if(parsedFiles.length<1)
                     document.getElementById('result').innerHTML = ''/*'Результат появится здесь'*/;
                 else if(radio && radio.value=='mode_comparison')
@@ -541,13 +542,13 @@
                 <label><input type="radio" name="group_mode" value="mode_timeline"/> Таймлайн</label><br/>
             </form>
             <div id="mode_specific">
-                <div id="show_tags_checkbox_div" style="display: none;">
+                <div id="show_tags_checkbox_div" class="zero_height">
                     <label><input type="checkbox" id="show_tags_checkbox"/>Показывать теги</input></label>
                 </div>
-                <div id="show_accurate_timing_checkbox_div" style="display: none;">
+                <div id="show_accurate_timing_checkbox_div" class="zero_height">
                     <label><input type="checkbox" id="show_accurate_timing_checkbox"/>Точный тайминг</input></label>
                 </div>
-                <div id="select_result_button_div" style="display: none;">
+                <div id="select_result_button_div" class="zero_height">
                     <a href="javascript:void(0)" id="select_result_button">Выделить всё</a>
                 </div>
             </div>
