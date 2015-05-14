@@ -271,7 +271,7 @@
             return result;
         }
 
-        function evaluateRowStrings(ignoreIntersections) {
+        function evaluateRowStrings(ignoreIntersections, accurateTiming) {
             if(parsedFiles.length<1)
                 return [];
             var result = [];
@@ -311,7 +311,7 @@
                     }
                 }
                 rowString = [];
-                if (optShowAccurateTiming)
+                if (accurateTiming)
                     rowString.push(getCentisecondIntervalStringFromMsec(msecStart, msecEnd, true));
                 else
                     rowString.push(getMinutesAndSecondsStringFromMsec(msecStart, true));
@@ -324,7 +324,7 @@
         }
         
         function evaluateResultForComparison() {
-            var rowStrings = evaluateRowStrings(false);
+            var rowStrings = evaluateRowStrings(false, false);
             if(parsedFiles.length<1)
                 return '';
             var result = '';
@@ -344,7 +344,7 @@
         }
         
         function evaluateResultForPad() {
-            var rowStrings = evaluateRowStrings(parsedFiles.length==1);
+            var rowStrings = evaluateRowStrings(parsedFiles.length==1, optShowAccurateTiming);
             if(parsedFiles.length<1)
                 return '';
             var result = '';
