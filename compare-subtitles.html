@@ -350,7 +350,11 @@
                 return '';
             var result = '';
             for(var iRow = 0; iRow<rowStrings.length; ++iRow) {
-                result += '\r\n&nbsp;&nbsp;&nbsp;&nbsp;'+rowStrings[iRow][0]+'&nbsp;<b>'+rowStrings[iRow][1]+':</b>&nbsp;';
+                result += '\r\n';
+                if (!optShowAccurateTiming) {
+                    result += '&nbsp;&nbsp;&nbsp;&nbsp;';
+                }
+                result += rowStrings[iRow][0]+'&nbsp;<b>'+rowStrings[iRow][1]+':</b>&nbsp;';
                 for(var iFile = 0; iFile<parsedFiles.length; ++iFile) {
                     var text = rowStrings[iRow][iFile+2].replace(/\\N/g, ' ↲ ');
                     result += text+(iFile==0?'&nbsp;→&nbsp;':iFile<parsedFiles.length-1?'&nbsp;//&nbsp;':'');
