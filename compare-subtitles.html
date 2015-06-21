@@ -10,9 +10,11 @@
         .drop_zone, div#result {width: 80%; margin: 25px auto;}
         #show_tags_checkbox_div {margin: 12px auto;}
         #show_accurate_timing_checkbox_div {margin: 12px auto;}
-        #select_result_button_div {font-size: 18px; text-align: center; width: 100%; margin: 25px auto;}
+        #select_result_button_div {font-size: 18px; text-align: center; width: 100%; margin: 20px auto 10px auto;}
         #select_result_button {text-decoration: none; border-bottom: 1px dashed;}
-        #show_tags_checkbox_div.zero_height, #show_accurate_timing_checkbox_div.zero_height, #select_result_button_div.zero_height {visibility: hidden; height: 0px; margin: 0px;}
+        #download_button_div {font-size: 18px; text-align: center; width: 100%; margin: 20px auto 10px auto;}
+        #download_button {text-decoration: none; border-bottom: 1px dashed;}
+        #show_tags_checkbox_div.zero_height, #show_accurate_timing_checkbox_div.zero_height, #select_result_button_div.zero_height, #download_button_div.zero_height {visibility: hidden; height: 0px; margin: 0px;}
         .result_for_pad {vertical-align: top; padding: 7px 5px;}
         .comparison_table {width:100%; table-layout:fixed; word-wrap: break-word;}
         .comparison_table td {vertical-align: top; padding: 7px 5px;}
@@ -433,6 +435,7 @@
                 document.getElementById('show_tags_checkbox_div').className = radio && (radio.value=='mode_pad' || radio.value=='mode_comparison') ? '' : 'zero_height';
                 document.getElementById('show_accurate_timing_checkbox_div').className = radio && radio.value=='mode_pad' ? '' : 'zero_height';
                 document.getElementById('select_result_button_div').className = radio && radio.value=='mode_pad' && parsedFiles.length>0 ? '' : 'zero_height';
+                document.getElementById('download_button_div').className = radio && radio.value!='mode_pad' && parsedFiles.length>0 ? '' : 'zero_height';
                 if(parsedFiles.length<1)
                     document.getElementById('result').innerHTML = ''/*'Результат появится здесь'*/;
                 else if(radio && radio.value=='mode_comparison')
@@ -455,6 +458,19 @@
             var selection = window.getSelection();            
             selection.removeAllRanges();
             selection.addRange(range);
+        }
+
+        function downloadResult() {
+            var contents = '<!DOCTYPE html>\n<html>\n<head>\n    <meta charset="utf-8">\n';
+            contents += '    <style>\n'+document.getElementsByTagName('style')[0].innerHTML+'\n    </style>\n';
+            contents += '    <body>\n    <div id="result">'+document.getElementById('result').innerHTML+'\n    </div>\n    </body>\n</html>';
+            var blob = new Blob([contents], {'type': 'application/octet-stream'});
+            var linkElement = document.createElement('a');
+            linkElement.href = window.URL.createObjectURL(blob);
+            linkElement.download = 'comparison.html';
+            var ckickEvent = document.createEvent('MouseEvents');
+            ckickEvent.initEvent('click', true, true);
+            linkElement.dispatchEvent(ckickEvent);
         }
 
         function onDragOver(evt) {
@@ -504,6 +520,7 @@
             document.getElementById('drop_zone').addEventListener('dragover', onDragOver, false);
             document.getElementById('drop_zone').addEventListener('drop', onFileDrop, false);
             document.getElementById('select_result_button').addEventListener('click', selectResult, false);
+            document.getElementById('download_button').addEventListener('click', downloadResult, false);
             var radios = document.querySelectorAll('input[type="radio"][name="group_mode"]');
             var radioToSelect = document.querySelector('input[type="radio"][name="group_mode"][value="'+(localStorage.getItem('viewmode')||'mode_comparison')+'"]');
             if(radioToSelect)
@@ -555,6 +572,9 @@
                 </div>
                 <div id="select_result_button_div" class="zero_height">
                     <a href="javascript:void(0)" id="select_result_button">Выделить всё</a>
+                </div>
+                <div id="download_button_div" class="zero_height">
+                    <a href="javascript:void(0)" id="download_button">Скачать</a>
                 </div>
             </div>
         </div>
