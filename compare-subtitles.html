@@ -76,7 +76,7 @@
             return ((minutesStart>=10||!padMinutesWithZeroes)?minutesStart:('0'+minutesStart))+':'+
                 (secondsStart>=10?secondsStart:('0'+secondsStart))+'.'+
                 (centisecondsStart>=10?centisecondsStart:('0'+centisecondsStart))+','+
-                (secondsDuration>=10?secondsDuration:('0'+secondsDuration))+'.'+
+                secondsDuration+'.'+
                 (centisecondsDuration>=10?centisecondsDuration:('0'+centisecondsDuration));
         }
         
